@@ -5,14 +5,12 @@ var bcrypt  = Promise.promisifyAll(require('bcrypt-nodejs'));
 var User = db.Model.extend({
   tableName: 'users',
 
-  initialize: function(username, password){
-    // return { 'username': username, 'password': password };
-    // bcrypt.genSalt(10, function(err, salt){
-      return bcrypt.hashAsync(password, null, null).then(function(hash){
-          //( { 'username': username, 'password': hash } );
+  initialize: function(obj){
+    this.on('creating', function(model, attrs, options){
+      return bcrypt.hashAsync(obj.password, null, null).then(function(hash){
+        model.set({ 'username': obj.username, 'password': hash });
       });
-    // });
-
+    });
   }
 });
 

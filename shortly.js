@@ -88,11 +88,28 @@ function(req, res) {
 /************************************************************/
 
 app.post('/signup', function(req, res){
-  // console.log(req.body.username)
+
   var user = new User({
     username: req.body.username,
     password: req.body.password
   });
+
+  user.save().then(function(newUser) {
+    Users.add(newUser);
+    res.location('/');
+    res.send(201, newUser);
+  })
+});
+
+app.post('/login', function(req, res){
+  new User({'username': req.body.username})
+    .fetch()
+    .then(function(model) {
+      console.log(model);
+    });
+  // Find out if the username exists in the database.
+  // If it does, we'll take the password entered in our POST request and run it through bcrypt, and then compare it with the hash in the database.
+  // If that comparison is true, then we will set the res.location to '/'
 })
 
 
