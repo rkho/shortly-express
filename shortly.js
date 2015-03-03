@@ -33,7 +33,6 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/',
 function(req, res) {
-  // restrict(req);
   res.render('index');
 });
 
@@ -88,6 +87,13 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+app.post('/signup', function(req, res){
+  // console.log(req.body.username)
+  var user = new User({
+    username: req.body.username,
+    password: req.body.password
+  });
+})
 
 
 /************************************************************/

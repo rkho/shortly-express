@@ -1,43 +1,19 @@
 var db = require('../config');
-var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
+var bcrypt  = Promise.promisifyAll(require('bcrypt-nodejs'));
 
 var User = db.Model.extend({
+  tableName: 'users',
 
-  initialize: function(){
-    // Hash the password
-    // And then set it in database after the password is hashed?
-  },
+  initialize: function(username, password){
+    // return { 'username': username, 'password': password };
+    // bcrypt.genSalt(10, function(err, salt){
+      return bcrypt.hashAsync(password, null, null).then(function(hash){
+          //( { 'username': username, 'password': hash } );
+      });
+    // });
 
-  salt,
-
-  login: Promise.method(function(username, password) {
-    if (User) { //check if user is in database
-      return hash(username, password);
-    }
-  },
-
-  hash: function(username, password) {
-    bcrypt.genSalt(10, function(err, salt){
-              salt = salt;
-              bcrypt.hash(this.password, salt, function(err, hash){
-                return hash;
-            })
-    })
-  },
-
-  setInDatabase: function(){
-    db.set({
-      username: User.username,
-      hash: User.hash,
-      salt: User.salt
-    })
   }
-
-  //Probably sends this information to the database
-  //  or at least the encrypted version through bcrypt
-  //Promise through bluebird will probably be necessary to only encrypt/store a password to the database once the encryption has completed
-
 });
 
 module.exports = User;
