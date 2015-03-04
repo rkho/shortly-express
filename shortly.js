@@ -2,7 +2,6 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-// var session = require('express-session');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -86,34 +85,59 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/login', function(req, res){
+  res.render('login');
+});
+
+app.get('/signup', function(req, res){
+  res.render('signup');
+});
+
+app.get('logout', function(req, res){
+  req.session.destroy(function(){
+    res.redirect('/login');
+  });
+});
+
 
 app.post('/signup', function(req, res){
 
-  var user = new User({
-    username: req.body.username,
-    password: req.body.password
-  });
+  var username = req.body.username;
+  var password = req.body.password;
 
-  user.save().then(function(newUser) {
-    Users.add(newUser);
-    res.location('/');
-    res.send(201, newUser);
-  })
+  new User({username: username}).fetch().then(function(user){
+    if (!user){
+      var newUser = new User({username: username, password: password});
+
+      newUser.save().then(function(savedUser){
+        util.createSession(req, res, savedUser);
+      })
+    } else {
+      console.log('This account already exists!');
+      res.redirect('/signup');
+    }
+  });
 });
 
 app.post('/login', function(req, res){
-  new User({'username': req.body.username})
-    .fetch()
-    .then(function(model) {
-      // console.log(model.attributes);
-      var attr = model.attributes;
-      var hash = model.hash(req.body.password);
-      console.log(hash);
 
+  var username = req.body.username;
+  var password = req.body.password;
 
+  new User({username: username}).fetch()then(function(user){
+    if (!user){
+      res.redirect('/login');
+    } else {
+      user.comparePassword(password, function(match){
+        if(match){
+          util.createSession(req, res, user);
+        } else {
+          res.redirect('/login');
+        }
+      })
+    }
+  })
 
-
-    });
   // Find out if the username exists in the database.
   // If it does, we'll take the password entered in our POST request and run it through bcrypt, and then compare it with the hash in the database.
   // If that comparison is true, then we will set the res.location to '/'
