@@ -105,7 +105,14 @@ app.post('/login', function(req, res){
   new User({'username': req.body.username})
     .fetch()
     .then(function(model) {
-      console.log(model);
+      // console.log(model.attributes);
+      var attr = model.attributes;
+      var hash = model.hash(req.body.password);
+      console.log(hash);
+
+
+
+
     });
   // Find out if the username exists in the database.
   // If it does, we'll take the password entered in our POST request and run it through bcrypt, and then compare it with the hash in the database.

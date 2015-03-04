@@ -11,7 +11,15 @@ var User = db.Model.extend({
         model.set({ 'username': obj.username, 'password': hash });
       });
     });
+  },
+
+  hash: function(password) {
+    console.log(password);
+    return bcrypt.hashAsync(password, null, null).then(function(hash){
+        return hash;
+    });
   }
+
 });
 
 module.exports = User;
